@@ -270,6 +270,63 @@
       color: #7f8998;
     }
 
+
+    .market-row {
+      height: 66px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex: 0 0 auto;
+      flex: 0 0 auto;
+      margin-top: 7px;
+    }
+
+    .market-tile {
+      -webkit-flex: 1;
+      flex: 1;
+      min-width: 0;
+      background: #191d24;
+      border-radius: 12px;
+      padding: 7px 11px;
+      margin-right: 7px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+    }
+
+    .market-tile:last-child { margin-right: 0; }
+
+    .market-name {
+      width: 30%;
+      font-size: 14px;
+      font-weight: 600;
+      color: #d8dde5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .market-value {
+      width: 42%;
+      text-align: right;
+      padding-right: 10px;
+      font-size: 17px;
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
+    .market-change {
+      width: 28%;
+      text-align: right;
+      font-size: 14px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+
+    .market-up { color: #57c785; }
+    .market-down { color: #e06c75; }
+    .market-flat { color: #aeb6c2; }
+
     .status {
       position: absolute;
       right: 12px;
@@ -346,7 +403,7 @@
       <div id="date" class="date">Datum wird geladen</div>
     </div>
     <div class="header-right">
-      Küchen-Dashboard · v8<br>
+      Küchen-Dashboard · v9<br>
       <span id="lastUpdate">Wetter wird geladen …</span>
     </div>
   </div>
@@ -384,6 +441,30 @@
       <div id="spiegelNews" class="news-list">
         <div class="placeholder">Überregionale Nachrichten werden geladen …</div>
       </div>
+    </div>
+  </div>
+
+
+  <div class="market-row" id="marketRow">
+    <div class="market-tile">
+      <div class="market-name">DAX</div>
+      <div class="market-value" id="market-dax-value">--</div>
+      <div class="market-change" id="market-dax-change">--</div>
+    </div>
+    <div class="market-tile">
+      <div class="market-name">Bitcoin</div>
+      <div class="market-value" id="market-btc-value">--</div>
+      <div class="market-change" id="market-btc-change">--</div>
+    </div>
+    <div class="market-tile">
+      <div class="market-name">Gold</div>
+      <div class="market-value" id="market-gold-value">--</div>
+      <div class="market-change" id="market-gold-change">--</div>
+    </div>
+    <div class="market-tile">
+      <div class="market-name">Schaeffler</div>
+      <div class="market-value" id="market-schaeffler-value">--</div>
+      <div class="market-change" id="market-schaeffler-change">--</div>
     </div>
   </div>
 
@@ -574,6 +655,58 @@ function loadNews() {
   loadSpiegelNews();
 }
 
+
+var MARKET_IDS = {
+  dax: { value: "market-dax-value", change: "market-dax-change" },
+  btc: { value: "market-btc-value", change: "market-btc-change" },
+  gold: { value: "market-gold-value", change: "market-gold-change" },
+  schaeffler: { value: "market-schaeffler-value", change: "market-schaeffler-change" }
+};
+
+function renderMarketChange(el, pct) {
+  if (pct === null || pct === undefined || isNaN(pct)) {
+    el.className = "market-change market-flat";
+    el.innerHTML = "–";
+    return;
+  }
+
+  var arrow = "→";
+  var cls = "market-flat";
+  if (pct > 0.001) {
+    arrow = "↑";
+    cls = "market-up";
+  } else if (pct < -0.001) {
+    arrow = "↓";
+    cls = "market-down";
+  }
+
+  var sign = pct > 0 ? "+" : "";
+  el.className = "market-change " + cls;
+  el.innerHTML = arrow + " " + sign + pct.toFixed(2).replace(".", ",") + "%";
+}
+
+function loadMarketData() {
+  fetch("market-data.json?ts=" + new Date().getTime(), { cache: "no-store" })
+    .then(function(response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(function(data) {
+      var items = data.items || [];
+      for (var i = 0; i < items.length; i++) {
+        var item = items[i];
+        var ids = MARKET_IDS[item.id];
+        if (!ids) continue;
+
+        document.getElementById(ids.value).innerHTML = escapeHtml(item.display || "--");
+        renderMarketChange(document.getElementById(ids.change), Number(item.change_pct));
+      }
+    })
+    .catch(function() {
+      // Keep placeholders; dashboard should remain usable even if market data fails.
+    });
+}
+
 function buildCards() {
   var html = "";
   for (var i = 0; i < LOCATIONS.length; i++) html += cardSkeleton(LOCATIONS[i], i);
@@ -628,10 +761,12 @@ function loadWeather() {
 buildCards();
 updateClock();
 loadNews();
+loadMarketData();
 setInterval(updateClock, 1000);
 loadWeather();
 setInterval(loadWeather, 15 * 60 * 1000);
 setInterval(loadNews, 10 * 60 * 1000);
+setInterval(loadMarketData, 5 * 60 * 1000);
 
 
 </script>
