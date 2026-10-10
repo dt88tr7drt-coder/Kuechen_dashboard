@@ -335,7 +335,7 @@
       <div id="date" class="date">Datum wird geladen</div>
     </div>
     <div class="header-right">
-      Küchen-Dashboard · v6<br>
+      Küchen-Dashboard · v7<br>
       <span id="lastUpdate">Wetter wird geladen …</span>
     </div>
   </div>
@@ -530,20 +530,14 @@ function loadRadarFrames() {
 
 
 
+
 var NEWS_CONFIG = {
   local: {
-    feeds: [
-      "https://www.infranken.de/storage/rss/rss/2.0/lokales.xml",
-      "https://www.infranken.de/storage/rss/rss/2.0/bamberg.xml"
-    ],
     target: "localNews",
-    maxItems: 5,
-    source: "inFranken"
+    maxItems: 5
   },
   spiegel: {
-    feeds: [
-      "https://www.spiegel.de/schlagzeilen/index.rss"
-    ],
+    feed: "https://www.spiegel.de/schlagzeilen/index.rss",
     target: "spiegelNews",
     maxItems: 5,
     source: "DER SPIEGEL"
@@ -562,55 +556,58 @@ function escapeHtml(str) {
 
 function formatNewsDate(value) {
   if (!value) return "";
-  // rss2json usually returns "YYYY-MM-DD HH:MM:SS"
-  var normalized = value;
-  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
-    normalized = value.replace(" ", "T");
+  var normalized = String(value);
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(normalized)) {
+    normalized = normalized.replace(" ", "T");
   }
   var d = new Date(normalized);
   if (isNaN(d.getTime())) return "";
   return pad(d.getHours()) + ":" + pad(d.getMinutes());
 }
 
-function renderNews(items, cfg) {
-  var target = document.getElementById(cfg.target);
-
+function renderLocalNews(items) {
+  var target = document.getElementById(NEWS_CONFIG.local.target);
   if (!items || items.length === 0) {
-    target.innerHTML = '<div class="placeholder">Keine Nachrichten verfügbar.</div>';
+    target.innerHTML = '<div class="placeholder">Keine lokalen Nachrichten verfügbar.</div>';
     return;
   }
 
-  items.sort(function(a, b) {
-    var da = new Date((a.pubDate || "").replace(" ", "T")).getTime() || 0;
-    var db = new Date((b.pubDate || "").replace(" ", "T")).getTime() || 0;
-    return db - da;
-  });
+  var html = "";
+  var max = Math.min(items.length, NEWS_CONFIG.local.maxItems);
 
-  var seen = {};
-  var shown = 0;
-  var out = "";
-
-  for (var i = 0; i < items.length && shown < cfg.maxItems; i++) {
+  for (var i = 0; i < max; i++) {
     var item = items[i];
-    var key = item.link || item.title;
-    if (!key || seen[key]) continue;
-    seen[key] = true;
-
-    out +=
+    html +=
       '<div class="news-item">' +
         '<a href="' + escapeHtml(item.link || "#") + '" target="_blank">' +
           escapeHtml(item.title || "Nachricht") +
         '</a>' +
         '<span class="news-meta">' +
-          cfg.source +
-          (formatNewsDate(item.pubDate) ? ' · ' + formatNewsDate(item.pubDate) : '') +
+          escapeHtml(item.source || "Bamberg & Franken") +
+          (item.time ? ' · ' + escapeHtml(item.time) : '') +
         '</span>' +
       '</div>';
-
-    shown++;
   }
 
-  target.innerHTML = out || '<div class="placeholder">Keine Nachrichten verfügbar.</div>';
+  target.innerHTML = html;
+}
+
+function loadLocalNews() {
+  var target = document.getElementById(NEWS_CONFIG.local.target);
+  target.innerHTML = '<div class="placeholder">Lokale Nachrichten werden geladen …</div>';
+
+  fetch("local-news.json?ts=" + new Date().getTime(), { cache: "no-store" })
+    .then(function(response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(function(data) {
+      renderLocalNews(data.items || []);
+    })
+    .catch(function() {
+      target.innerHTML =
+        '<div class="placeholder">Lokale Nachrichten aktuell nicht verfügbar.</div>';
+    });
 }
 
 function fetchRss2Json(feedUrl) {
@@ -631,41 +628,39 @@ function fetchRss2Json(feedUrl) {
     });
 }
 
-function loadNewsFeed(cfg) {
+function loadSpiegelNews() {
+  var cfg = NEWS_CONFIG.spiegel;
   var target = document.getElementById(cfg.target);
-  target.innerHTML = '<div class="placeholder">Nachrichten werden geladen …</div>';
+  target.innerHTML = '<div class="placeholder">SPIEGEL-Nachrichten werden geladen …</div>';
 
-  var jobs = [];
-  for (var i = 0; i < cfg.feeds.length; i++) {
-    jobs.push(
-      fetchRss2Json(cfg.feeds[i]).catch(function() {
-        return [];
-      })
-    );
-  }
+  fetchRss2Json(cfg.feed)
+    .then(function(items) {
+      if (!items || items.length === 0) throw new Error("Keine Feed-Daten");
 
-  Promise.all(jobs)
-    .then(function(results) {
-      var merged = [];
-      for (var r = 0; r < results.length; r++) {
-        merged = merged.concat(results[r]);
+      var html = "";
+      for (var i = 0; i < items.length && i < cfg.maxItems; i++) {
+        html +=
+          '<div class="news-item">' +
+            '<a href="' + escapeHtml(items[i].link || "#") + '" target="_blank">' +
+              escapeHtml(items[i].title || "Nachricht") +
+            '</a>' +
+            '<span class="news-meta">' +
+              cfg.source +
+              (formatNewsDate(items[i].pubDate) ? ' · ' + formatNewsDate(items[i].pubDate) : '') +
+            '</span>' +
+          '</div>';
       }
-
-      if (merged.length === 0) {
-        throw new Error("Keine Feed-Daten");
-      }
-
-      renderNews(merged, cfg);
+      target.innerHTML = html;
     })
     .catch(function() {
       target.innerHTML =
-        '<div class="placeholder">Nachrichten aktuell nicht verfügbar.</div>';
+        '<div class="placeholder">SPIEGEL-Nachrichten aktuell nicht verfügbar.</div>';
     });
 }
 
 function loadNews() {
-  loadNewsFeed(NEWS_CONFIG.local);
-  loadNewsFeed(NEWS_CONFIG.spiegel);
+  loadLocalNews();
+  loadSpiegelNews();
 }
 
 function buildCards() {
