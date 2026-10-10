@@ -85,6 +85,7 @@
       margin-top: 5px;
       font-size: 18px;
       color: #aeb6c2;
+      white-space: nowrap;
     }
 
     .header-right {
@@ -319,39 +320,52 @@
       min-width: 0;
       background: #191d24;
       border-radius: 12px;
-      padding: 7px 11px;
+      padding: 7px 11px 6px 11px;
       margin-right: 7px;
       display: -webkit-flex;
       display: flex;
-      -webkit-align-items: center;
-      align-items: center;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      -webkit-justify-content: center;
+      justify-content: center;
     }
 
     .market-tile:last-child { margin-right: 0; }
 
+    .market-line1 {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: baseline;
+      align-items: baseline;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      min-width: 0;
+    }
+
+    .market-line2 {
+      margin-top: 4px;
+      text-align: right;
+    }
+
     .market-name {
-      width: 30%;
       font-size: 14px;
       font-weight: 600;
       color: #d8dde5;
       white-space: nowrap;
       overflow: hidden;
       text-overflow: ellipsis;
+      padding-right: 8px;
     }
 
     .market-value {
-      width: 42%;
-      text-align: right;
-      padding-right: 10px;
       font-size: 17px;
       font-weight: 500;
       white-space: nowrap;
+      text-align: right;
     }
 
     .market-change {
-      width: 28%;
-      text-align: right;
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 600;
       white-space: nowrap;
     }
@@ -445,7 +459,7 @@
     </div>
 
     <div class="header-right">
-      Küchen-Dashboard · v10<br>
+      Küchen-Dashboard · v11<br>
       <span id="lastUpdate">Wetter wird geladen …</span>
     </div>
   </div>
@@ -489,24 +503,43 @@
 
   <div class="market-row" id="marketRow">
     <div class="market-tile">
-      <div class="market-name">DAX</div>
-      <div class="market-value" id="market-dax-value">--</div>
-      <div class="market-change" id="market-dax-change">--</div>
+      <div class="market-line1">
+        <span class="market-name">DAX</span>
+        <span class="market-value" id="market-dax-value">--</span>
+      </div>
+      <div class="market-line2">
+        <span class="market-change" id="market-dax-change">--</span>
+      </div>
     </div>
+
     <div class="market-tile">
-      <div class="market-name">Bitcoin</div>
-      <div class="market-value" id="market-btc-value">--</div>
-      <div class="market-change" id="market-btc-change">--</div>
+      <div class="market-line1">
+        <span class="market-name">Bitcoin</span>
+        <span class="market-value" id="market-btc-value">--</span>
+      </div>
+      <div class="market-line2">
+        <span class="market-change" id="market-btc-change">--</span>
+      </div>
     </div>
+
     <div class="market-tile">
-      <div class="market-name">Gold</div>
-      <div class="market-value" id="market-gold-value">--</div>
-      <div class="market-change" id="market-gold-change">--</div>
+      <div class="market-line1">
+        <span class="market-name">Gold</span>
+        <span class="market-value" id="market-gold-value">--</span>
+      </div>
+      <div class="market-line2">
+        <span class="market-change" id="market-gold-change">--</span>
+      </div>
     </div>
+
     <div class="market-tile">
-      <div class="market-name">Schaeffler</div>
-      <div class="market-value" id="market-schaeffler-value">--</div>
-      <div class="market-change" id="market-schaeffler-change">--</div>
+      <div class="market-line1">
+        <span class="market-name">Schaeffler</span>
+        <span class="market-value" id="market-schaeffler-value">--</span>
+      </div>
+      <div class="market-line2">
+        <span class="market-change" id="market-schaeffler-change">--</span>
+      </div>
     </div>
   </div>
 
@@ -526,7 +559,7 @@ function updateClock() {
   var now = new Date();
   document.getElementById("clock").innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
 
-  var days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+  var days = ["So","Mo","Di","Mi","Do","Fr","Sa"];
   var months = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
   document.getElementById("date").innerHTML =
     days[now.getDay()] + ", " + now.getDate() + ". " + months[now.getMonth()] + " " + now.getFullYear();
