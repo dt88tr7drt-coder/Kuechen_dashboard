@@ -1,0 +1,29 @@
+{
+  "updated_at": null,
+  "items": [
+    {
+      "id": "dax",
+      "name": "DAX",
+      "display": "--",
+      "change_pct": null
+    },
+    {
+      "id": "btc",
+      "name": "Bitcoin",
+      "display": "--",
+      "change_pct": null
+    },
+    {
+      "id": "gold",
+      "name": "Gold",
+      "display": "--",
+      "change_pct": null
+    },
+    {
+      "id": "schaeffler",
+      "name": "Schaeffler",
+      "display": "--",
+      "change_pct": null
+    }
+  ]
+}
