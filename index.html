@@ -1,0 +1,694 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="format-detection" content="telephone=no">
+  <title>Küchen-Dashboard</title>
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2jsXG2TcjmHXRd4l5Z4HhMtk6CB1tZz2qRggn74c6Q3wI9BqGm4wJgI83M0RyI7v9C1N6zQ==" crossorigin="">
+  <style>
+    * { box-sizing: border-box; }
+    html, body {
+      margin: 0;
+      width: 100%;
+      height: 100%;
+      background: #0f1115;
+      color: #f5f7fa;
+      font-family: -apple-system, BlinkMacSystemFont, "Helvetica Neue", Arial, sans-serif;
+      overflow: hidden;
+    }
+
+    body { padding: 12px; }
+
+    .dashboard {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-direction: column;
+      flex-direction: column;
+      height: 100%;
+      min-height: 0;
+    }
+
+    .header {
+      height: 86px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+      -webkit-flex: 0 0 auto;
+      flex: 0 0 auto;
+      margin-bottom: 8px;
+    }
+
+    .clock {
+      font-size: 58px;
+      line-height: .9;
+      font-weight: 300;
+      letter-spacing: -2px;
+    }
+
+    .date {
+      margin-top: 5px;
+      font-size: 18px;
+      color: #aeb6c2;
+    }
+
+    .header-right {
+      text-align: right;
+      color: #8d97a5;
+      font-size: 14px;
+      padding-top: 5px;
+      line-height: 1.35;
+    }
+
+    .weather-grid {
+      height: 118px;
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex-wrap: nowrap;
+      flex-wrap: nowrap;
+      margin: 0 0 8px 0;
+      -webkit-flex: 0 0 auto;
+      flex: 0 0 auto;
+    }
+
+    .weather-card {
+      width: 25%;
+      min-width: 0;
+      margin-right: 8px;
+      background: #191d24;
+      border-radius: 14px;
+      padding: 11px 12px;
+      overflow: hidden;
+    }
+
+    .weather-card:last-child { margin-right: 0; }
+
+    .card-top {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      -webkit-align-items: flex-start;
+      align-items: flex-start;
+    }
+
+    .place {
+      font-size: 18px;
+      font-weight: 600;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      max-width: 125px;
+    }
+
+    .subplace {
+      font-size: 11px;
+      color: #788392;
+      margin-top: 1px;
+    }
+
+    .temp {
+      font-size: 31px;
+      line-height: 1;
+      font-weight: 300;
+      margin-left: 6px;
+    }
+
+    .condition {
+      margin-top: 5px;
+      font-size: 13px;
+      color: #c3c9d2;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .details {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      margin-top: 7px;
+      padding-top: 6px;
+      border-top: 1px solid #2b313b;
+      color: #aeb6c2;
+      font-size: 11px;
+      white-space: nowrap;
+    }
+
+    .radar-panel {
+      position: relative;
+      height: 302px;
+      background: #191d24;
+      border-radius: 14px;
+      overflow: hidden;
+      margin-bottom: 8px;
+      -webkit-flex: 0 0 auto;
+      flex: 0 0 auto;
+    }
+
+    .radar-head {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 36px;
+      z-index: 800;
+      background: rgba(25,29,36,.96);
+      display: -webkit-flex;
+      display: flex;
+      -webkit-align-items: center;
+      align-items: center;
+      -webkit-justify-content: space-between;
+      justify-content: space-between;
+      padding: 0 12px;
+      font-size: 13px;
+    }
+
+    .radar-title {
+      font-size: 17px;
+      font-weight: 600;
+    }
+
+    #radarMap {
+      position: absolute;
+      top: 36px;
+      left: 0;
+      right: 0;
+      bottom: 0;
+    }
+
+    .radar-credit {
+      position: absolute;
+      right: 6px;
+      bottom: 4px;
+      z-index: 900;
+      background: rgba(15,17,21,.78);
+      border-radius: 5px;
+      padding: 2px 5px;
+      font-size: 9px;
+      color: #c3c9d2;
+    }
+
+    .radar-credit a {
+      color: #c3c9d2;
+      text-decoration: none;
+    }
+
+    .bottom {
+      display: -webkit-flex;
+      display: flex;
+      -webkit-flex: 1 1 auto;
+      flex: 1 1 auto;
+      min-height: 0;
+    }
+
+    .panel {
+      background: #191d24;
+      border-radius: 14px;
+      padding: 11px 13px;
+      overflow: hidden;
+      -webkit-flex: 1;
+      flex: 1;
+      min-width: 0;
+      margin-right: 8px;
+    }
+
+    .panel:last-child { margin-right: 0; }
+
+    .panel h2 {
+      margin: 0 0 7px 0;
+      font-size: 18px;
+      font-weight: 600;
+    }
+
+    .placeholder {
+      font-size: 13px;
+      line-height: 1.35;
+      color: #aeb6c2;
+    }
+
+    .news-list {
+      height: calc(100% - 28px);
+      overflow: hidden;
+    }
+
+    .news-item {
+      padding: 5px 0;
+      border-bottom: 1px solid #2b313b;
+      font-size: 13px;
+      line-height: 1.18;
+    }
+
+    .news-item:last-child { border-bottom: 0; }
+
+    .news-item a {
+      color: #f5f7fa;
+      text-decoration: none;
+    }
+
+    .news-meta {
+      display: block;
+      margin-top: 2px;
+      font-size: 10px;
+      color: #7f8998;
+    }
+
+    .status {
+      position: absolute;
+      right: 12px;
+      bottom: 2px;
+      font-size: 9px;
+      color: #596473;
+      pointer-events: none;
+    }
+
+    /* iPad Air 1 landscape tuning */
+    @media (max-width: 1024px) and (orientation: landscape) {
+      body { padding: 10px; }
+
+      .header { height: 78px; margin-bottom: 7px; }
+      .clock { font-size: 52px; }
+      .date { font-size: 16px; }
+
+      .weather-grid {
+        height: 108px;
+        margin-bottom: 7px;
+      }
+
+      .weather-card {
+        padding: 9px 10px;
+        margin-right: 7px;
+      }
+
+      .place { font-size: 16px; max-width: 112px; }
+      .subplace { font-size: 10px; }
+      .temp { font-size: 28px; }
+      .condition { font-size: 12px; }
+      .details { font-size: 10px; }
+
+      .radar-panel {
+        height: 292px;
+        margin-bottom: 7px;
+      }
+
+      .bottom { min-height: 0; }
+
+      .panel {
+        padding: 9px 11px;
+        margin-right: 7px;
+      }
+
+      .panel h2 { font-size: 17px; }
+      .news-item { font-size: 12px; padding: 4px 0; }
+      .news-meta { font-size: 9px; }
+    }
+
+    /* Fallback if Safari standalone has a little less vertical room */
+    @media (max-height: 740px) and (orientation: landscape) {
+      .header { height: 68px; }
+      .clock { font-size: 46px; }
+      .date { font-size: 15px; }
+
+      .weather-grid { height: 96px; }
+      .weather-card { padding: 8px 9px; }
+      .place { font-size: 15px; }
+      .temp { font-size: 25px; }
+      .condition { font-size: 11px; }
+      .details { font-size: 9px; }
+
+      .radar-panel { height: 260px; }
+      .news-item { font-size: 11px; }
+    }
+  </style>
+</head>
+<body>
+<div class="dashboard">
+  <div class="header">
+    <div>
+      <div id="clock" class="clock">--:--</div>
+      <div id="date" class="date">Datum wird geladen</div>
+    </div>
+    <div class="header-right">
+      Küchen-Dashboard<br>
+      <span id="lastUpdate">Wetter wird geladen …</span>
+    </div>
+  </div>
+
+  <div id="weatherGrid" class="weather-grid"></div>
+
+  <div class="radar-panel">
+    <div class="radar-head">
+      <span class="radar-title">Regenradar · Großraum Stegaurach</span>
+      <span id="radarTime">Radar wird geladen …</span>
+    </div>
+    <div id="radarMap"></div>
+    <div class="radar-credit">Radar: <a href="https://www.rainviewer.com/" target="_blank">RainViewer</a> · Karte: OpenStreetMap</div>
+  </div>
+
+  <div class="bottom">
+    <div class="panel">
+      <h2>Franken &amp; Bamberg</h2>
+      <div id="localNews" class="news-list">
+        <div class="placeholder">Lokale Nachrichten werden geladen …</div>
+      </div>
+    </div>
+    <div class="panel">
+      <h2>SPIEGEL</h2>
+      <div id="spiegelNews" class="news-list">
+        <div class="placeholder">Überregionale Nachrichten werden geladen …</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="status" class="status"></div>
+</div>
+
+<script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"></script>
+<script>
+var LOCATIONS = [
+  { name: "Stegaurach", sub: "96135", lat: 49.86333, lon: 10.84361 },
+  { name: "Herzogenaurach", sub: "91074", lat: 49.56874, lon: 10.88330 },
+  { name: "Viernau", sub: "98587", lat: 50.66639, lon: 10.55361 },
+  { name: "Köstenberg", sub: "Presseck · 95355", lat: 50.25325, lon: 11.54070 }
+];
+
+function pad(n) { return n < 10 ? "0" + n : "" + n; }
+
+function updateClock() {
+  var now = new Date();
+  document.getElementById("clock").innerHTML = pad(now.getHours()) + ":" + pad(now.getMinutes());
+
+  var days = ["Sonntag","Montag","Dienstag","Mittwoch","Donnerstag","Freitag","Samstag"];
+  var months = ["Januar","Februar","März","April","Mai","Juni","Juli","August","September","Oktober","November","Dezember"];
+  document.getElementById("date").innerHTML =
+    days[now.getDay()] + ", " + now.getDate() + ". " + months[now.getMonth()] + " " + now.getFullYear();
+}
+
+function weatherText(code) {
+  if (code === 0) return "Klar";
+  if (code === 1) return "Überwiegend klar";
+  if (code === 2) return "Teilweise bewölkt";
+  if (code === 3) return "Bewölkt";
+  if (code === 45 || code === 48) return "Nebel";
+  if (code === 51 || code === 53 || code === 55) return "Nieselregen";
+  if (code === 56 || code === 57) return "Gefrierender Nieselregen";
+  if (code === 61 || code === 63 || code === 65) return "Regen";
+  if (code === 66 || code === 67) return "Gefrierender Regen";
+  if (code === 71 || code === 73 || code === 75 || code === 77) return "Schnee";
+  if (code === 80 || code === 81 || code === 82) return "Regenschauer";
+  if (code === 85 || code === 86) return "Schneeschauer";
+  if (code === 95 || code === 96 || code === 99) return "Gewitter";
+  return "Wetter";
+}
+
+function cardSkeleton(loc, index) {
+  return '' +
+    '<div class="weather-card">' +
+      '<div class="card-top">' +
+        '<div><div class="place">' + loc.name + '</div><div class="subplace">' + loc.sub + '</div></div>' +
+        '<div id="temp' + index + '" class="temp">--°</div>' +
+      '</div>' +
+      '<div id="cond' + index + '" class="condition">Wetter wird geladen …</div>' +
+      '<div class="details">' +
+        '<span id="minmax' + index + '">Heute: --° / --°</span>' +
+        '<span id="rain' + index + '">Regen: --%</span>' +
+      '</div>' +
+    '</div>';
+}
+
+
+var radarMap = null;
+var radarLayer = null;
+var radarFrames = [];
+var radarPosition = 0;
+var radarTimer = null;
+var radarHost = "";
+
+function initRadar() {
+  if (typeof L === "undefined") {
+    document.getElementById("radarTime").innerHTML = "Karte konnte nicht geladen werden";
+    return;
+  }
+
+  // Stegaurach: center slightly wider to show Bamberg and surroundings.
+  radarMap = L.map("radarMap", {
+    center: [49.86333, 10.84361],
+    zoom: 9,
+    zoomControl: false,
+    attributionControl: false
+  });
+
+  L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    maxZoom: 18
+  }).addTo(radarMap);
+
+  L.circleMarker([49.86333, 10.84361], {
+    radius: 5,
+    weight: 2,
+    color: "#ffffff",
+    fillColor: "#111111",
+    fillOpacity: 1
+  }).addTo(radarMap).bindTooltip("Stegaurach");
+
+  loadRadarFrames();
+}
+
+function formatRadarTime(timestamp) {
+  var d = new Date(timestamp * 1000);
+  return pad(d.getHours()) + ":" + pad(d.getMinutes()) + " Uhr";
+}
+
+function showRadarFrame(pos) {
+  if (!radarMap || radarFrames.length === 0) return;
+
+  if (pos >= radarFrames.length) pos = 0;
+  if (pos < 0) pos = radarFrames.length - 1;
+  radarPosition = pos;
+
+  if (radarLayer) radarMap.removeLayer(radarLayer);
+
+  var frame = radarFrames[radarPosition];
+  var tileUrl = radarHost + frame.path + "/256/{z}/{x}/{y}/2/1_1.png";
+
+  radarLayer = L.tileLayer(tileUrl, {
+    tileSize: 256,
+    opacity: 0.68,
+    maxNativeZoom: 7,
+    maxZoom: 18
+  }).addTo(radarMap);
+
+  document.getElementById("radarTime").innerHTML = formatRadarTime(frame.time);
+}
+
+function startRadarAnimation() {
+  if (radarTimer) clearInterval(radarTimer);
+  radarTimer = setInterval(function() {
+    showRadarFrame(radarPosition + 1);
+  }, 1200);
+}
+
+function loadRadarFrames() {
+  fetch("https://api.rainviewer.com/public/weather-maps.json")
+    .then(function(response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(function(data) {
+      radarHost = data.host;
+      radarFrames = data.radar && data.radar.past ? data.radar.past : [];
+
+      // Keep only the latest 8 frames for smoother performance on the old iPad.
+      if (radarFrames.length > 8) {
+        radarFrames = radarFrames.slice(radarFrames.length - 8);
+      }
+
+      if (radarFrames.length === 0) throw new Error("Keine Radardaten");
+
+      radarPosition = radarFrames.length - 1;
+      showRadarFrame(radarPosition);
+      startRadarAnimation();
+    })
+    .catch(function() {
+      document.getElementById("radarTime").innerHTML = "Radar aktuell nicht verfügbar";
+    });
+}
+
+
+
+var NEWS_CONFIG = {
+  local: {
+    // Bamberg/inFranken feed mirrored by RSS Amplifier
+    feed: "https://rssamplifier.com/infranken-de-3.rss",
+    target: "localNews",
+    maxItems: 4,
+    source: "inFranken · Bamberg"
+  },
+  spiegel: {
+    feed: "https://www.spiegel.de/schlagzeilen/index.rss",
+    target: "spiegelNews",
+    maxItems: 4,
+    source: "DER SPIEGEL"
+  }
+};
+
+function escapeHtml(str) {
+  if (!str) return "";
+  return str
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+function formatNewsDate(value) {
+  if (!value) return "";
+  var d = new Date(value);
+  if (isNaN(d.getTime())) return "";
+  return pad(d.getHours()) + ":" + pad(d.getMinutes());
+}
+
+function parseFeedXml(xmlText, cfg) {
+  var parser = new DOMParser();
+  var xml = parser.parseFromString(xmlText, "text/xml");
+  var items = xml.getElementsByTagName("item");
+  var out = [];
+
+  for (var i = 0; i < items.length && out.length < cfg.maxItems; i++) {
+    var item = items[i];
+    var titleNode = item.getElementsByTagName("title")[0];
+    var linkNode = item.getElementsByTagName("link")[0];
+    var dateNode = item.getElementsByTagName("pubDate")[0];
+
+    var title = titleNode ? titleNode.textContent : "";
+    var link = linkNode ? linkNode.textContent : "#";
+    var date = dateNode ? dateNode.textContent : "";
+
+    if (title) {
+      out.push({
+        title: title,
+        link: link,
+        date: date
+      });
+    }
+  }
+  return out;
+}
+
+function renderNews(items, cfg) {
+  var target = document.getElementById(cfg.target);
+  if (!items || items.length === 0) {
+    target.innerHTML = '<div class="placeholder">Keine Nachrichten verfügbar.</div>';
+    return;
+  }
+
+  var html = "";
+  for (var i = 0; i < items.length; i++) {
+    html +=
+      '<div class="news-item">' +
+        '<a href="' + escapeHtml(items[i].link) + '" target="_blank">' +
+          escapeHtml(items[i].title) +
+        '</a>' +
+        '<span class="news-meta">' +
+          cfg.source +
+          (formatNewsDate(items[i].date) ? ' · ' + formatNewsDate(items[i].date) : '') +
+        '</span>' +
+      '</div>';
+  }
+  target.innerHTML = html;
+}
+
+function fetchFeedThroughProxy(feedUrl) {
+  var proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(feedUrl);
+  return fetch(proxy).then(function(response) {
+    if (!response.ok) throw new Error("HTTP " + response.status);
+    return response.text();
+  });
+}
+
+function loadNewsFeed(cfg) {
+  fetchFeedThroughProxy(cfg.feed)
+    .then(function(text) {
+      renderNews(parseFeedXml(text, cfg), cfg);
+    })
+    .catch(function() {
+      document.getElementById(cfg.target).innerHTML =
+        '<div class="placeholder">Nachrichten aktuell nicht verfügbar.</div>';
+    });
+}
+
+function loadNews() {
+  loadNewsFeed(NEWS_CONFIG.local);
+  loadNewsFeed(NEWS_CONFIG.spiegel);
+}
+
+
+function buildCards() {
+  var html = "";
+  for (var i = 0; i < LOCATIONS.length; i++) html += cardSkeleton(LOCATIONS[i], i);
+  document.getElementById("weatherGrid").innerHTML = html;
+}
+
+function loadLocation(loc, index) {
+  var url =
+    "https://api.open-meteo.com/v1/forecast" +
+    "?latitude=" + encodeURIComponent(loc.lat) +
+    "&longitude=" + encodeURIComponent(loc.lon) +
+    "&current=temperature_2m,weather_code" +
+    "&daily=temperature_2m_max,temperature_2m_min,precipitation_probability_max" +
+    "&timezone=Europe%2FBerlin" +
+    "&forecast_days=1";
+
+  return fetch(url)
+    .then(function(response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(function(data) {
+      document.getElementById("temp" + index).innerHTML = Math.round(data.current.temperature_2m) + "°";
+      document.getElementById("cond" + index).innerHTML = weatherText(data.current.weather_code);
+      document.getElementById("minmax" + index).innerHTML =
+        "Heute: " + Math.round(data.daily.temperature_2m_min[0]) + "° / " +
+        Math.round(data.daily.temperature_2m_max[0]) + "°";
+
+      var rain = data.daily.precipitation_probability_max ?
+        data.daily.precipitation_probability_max[0] : null;
+      document.getElementById("rain" + index).innerHTML =
+        rain === null ? "Regen: --" : "Regen: " + Math.round(rain) + "%";
+    })
+    .catch(function(err) {
+      document.getElementById("cond" + index).innerHTML = "Nicht verfügbar";
+      document.getElementById("status").innerHTML = "Fehler beim Laden eines Standorts";
+    });
+}
+
+function loadWeather() {
+  var jobs = [];
+  for (var i = 0; i < LOCATIONS.length; i++) jobs.push(loadLocation(LOCATIONS[i], i));
+
+  Promise.all(jobs).then(function() {
+    var now = new Date();
+    document.getElementById("lastUpdate").innerHTML =
+      "Aktualisiert " + pad(now.getHours()) + ":" + pad(now.getMinutes());
+    document.getElementById("status").innerHTML = "Wetteraktualisierung alle 15 Minuten";
+  });
+}
+
+buildCards();
+updateClock();
+initRadar();
+loadNews();
+setInterval(updateClock, 1000);
+loadWeather();
+setInterval(loadWeather, 15 * 60 * 1000);
+setInterval(loadRadarFrames, 10 * 60 * 1000);
+setInterval(loadNews, 10 * 60 * 1000);
+</script>
+</body>
+</html>
