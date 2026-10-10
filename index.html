@@ -43,6 +43,37 @@
       margin-bottom: 8px;
     }
 
+    .header-left {
+      width: 27%;
+      min-width: 0;
+    }
+
+    .quote-box {
+      width: 50%;
+      min-width: 0;
+      padding: 3px 18px 0 18px;
+      text-align: center;
+      overflow: hidden;
+    }
+
+    .quote-text {
+      font-size: 15px;
+      line-height: 1.25;
+      font-style: italic;
+      color: #e7ebf1;
+      max-height: 40px;
+      overflow: hidden;
+    }
+
+    .quote-author {
+      margin-top: 4px;
+      font-size: 10px;
+      color: #8d97a5;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
     .clock {
       font-size: 52px;
       line-height: .9;
@@ -57,6 +88,8 @@
     }
 
     .header-right {
+      width: 23%;
+      min-width: 0;
       text-align: right;
       color: #8d97a5;
       font-size: 14px;
@@ -343,6 +376,9 @@
       .header { height: 78px; margin-bottom: 7px; }
       .clock { font-size: 52px; }
       .date { font-size: 16px; }
+      .quote-box { padding-left: 10px; padding-right: 10px; }
+      .quote-text { font-size: 13px; }
+      .quote-author { font-size: 9px; }
 
       .weather-grid {
         height: 108px;
@@ -398,12 +434,18 @@
 <body>
 <div class="dashboard">
   <div class="header">
-    <div>
+    <div class="header-left">
       <div id="clock" class="clock">--:--</div>
       <div id="date" class="date">Datum wird geladen</div>
     </div>
+
+    <div class="quote-box">
+      <div id="quoteText" class="quote-text">Zitat des Tages wird geladen …</div>
+      <div id="quoteAuthor" class="quote-author"></div>
+    </div>
+
     <div class="header-right">
-      Küchen-Dashboard · v9<br>
+      Küchen-Dashboard · v10<br>
       <span id="lastUpdate">Wetter wird geladen …</span>
     </div>
   </div>
@@ -656,6 +698,87 @@ function loadNews() {
 }
 
 
+
+var DAILY_QUOTES = [
+  { text: "Der Weg ist das Ziel.", author: "Konfuzius" },
+  { text: "Es ist nicht genug zu wissen, man muss auch anwenden.", author: "Johann Wolfgang von Goethe" },
+  { text: "Wer immer tut, was er schon kann, bleibt immer das, was er schon ist.", author: "Henry Ford" },
+  { text: "Phantasie ist wichtiger als Wissen.", author: "Albert Einstein" },
+  { text: "Die Zukunft hängt davon ab, was wir heute tun.", author: "Mahatma Gandhi" },
+  { text: "Glück ist das einzige, das sich verdoppelt, wenn man es teilt.", author: "Albert Schweitzer" },
+  { text: "Ein Tag ohne Lächeln ist ein verlorener Tag.", author: "Charlie Chaplin" },
+  { text: "Nicht weil es schwer ist, wagen wir es nicht; weil wir es nicht wagen, ist es schwer.", author: "Seneca" },
+  { text: "Was wir wissen, ist ein Tropfen; was wir nicht wissen, ein Ozean.", author: "Isaac Newton" },
+  { text: "Mut steht am Anfang des Handelns, Glück am Ende.", author: "Demokrit" },
+  { text: "Gib jedem Tag die Chance, der schönste deines Lebens zu werden.", author: "Mark Twain zugeschrieben" },
+  { text: "Inmitten von Schwierigkeiten liegen günstige Gelegenheiten.", author: "Albert Einstein" },
+  { text: "Es gibt nichts Gutes, außer man tut es.", author: "Erich Kästner" },
+  { text: "Wer ein Warum zum Leben hat, erträgt fast jedes Wie.", author: "Friedrich Nietzsche" },
+  { text: "Ohne Musik wäre das Leben ein Irrtum.", author: "Friedrich Nietzsche" },
+  { text: "Geduld ist bitter, aber ihre Frucht ist süß.", author: "Jean-Jacques Rousseau" },
+  { text: "Einfachheit ist die höchste Stufe der Vollendung.", author: "Leonardo da Vinci zugeschrieben" },
+  { text: "Wer den Hafen nicht kennt, für den ist kein Wind günstig.", author: "Seneca" },
+  { text: "Das Glück deines Lebens hängt von der Beschaffenheit deiner Gedanken ab.", author: "Marc Aurel" },
+  { text: "Eine Reise von tausend Meilen beginnt mit einem einzigen Schritt.", author: "Laotse" },
+  { text: "Wer andere kennt, ist klug. Wer sich selbst kennt, ist weise.", author: "Laotse" },
+  { text: "Der Mensch leidet öfter in der Vorstellung als in der Wirklichkeit.", author: "Seneca" },
+  { text: "Das Leben gehört dem Lebendigen an, und wer lebt, muss auf Wechsel gefasst sein.", author: "Johann Wolfgang von Goethe" },
+  { text: "Es muss von Herzen kommen, was auf Herzen wirken soll.", author: "Johann Wolfgang von Goethe" },
+  { text: "Erfahrung ist der Name, den wir unseren Irrtümern geben.", author: "Oscar Wilde" },
+  { text: "Man entdeckt keine neuen Erdteile ohne den Mut, alte Küsten aus den Augen zu verlieren.", author: "André Gide" },
+  { text: "Wer hohe Türme bauen will, muss lange beim Fundament verweilen.", author: "Anton Bruckner" },
+  { text: "Der Anfang ist die Hälfte des Ganzen.", author: "Aristoteles" },
+  { text: "Nicht die Dinge selbst beunruhigen uns, sondern unsere Meinung über die Dinge.", author: "Epiktet" },
+  { text: "Wissen ist Macht.", author: "Francis Bacon" },
+  { text: "Genialität besteht zu einem Prozent aus Inspiration und zu neunundneunzig Prozent aus Transpiration.", author: "Thomas Edison" },
+  { text: "Scheitern ist die Gelegenheit, intelligenter von Neuem zu beginnen.", author: "Henry Ford" },
+  { text: "Zusammenkommen ist ein Beginn, Zusammenbleiben ein Fortschritt, Zusammenarbeiten ein Erfolg.", author: "Henry Ford zugeschrieben" },
+  { text: "Nicht der Beginn wird belohnt, sondern einzig und allein das Durchhalten.", author: "Katharina von Siena" },
+  { text: "Man muss das Unmögliche versuchen, um das Mögliche zu erreichen.", author: "Hermann Hesse" },
+  { text: "Die Zukunft beginnt heute, nicht morgen.", author: "Johannes Paul II." },
+  { text: "Kleine Taten, die man ausführt, sind besser als große, die man plant.", author: "Peter Marshall" },
+  { text: "Qualität bedeutet, es richtig zu machen, wenn niemand zusieht.", author: "Henry Ford zugeschrieben" },
+  { text: "Es ist besser, unvollkommen anzupacken, als perfekt zu zögern.", author: "Sprichwort" },
+  { text: "Wer ein Ziel hat, findet einen Weg.", author: "Sprichwort" },
+  { text: "Was du heute kannst besorgen, das verschiebe nicht auf morgen.", author: "Deutsches Sprichwort" },
+  { text: "Der Kluge lernt aus allem und von jedem.", author: "Sokrates zugeschrieben" },
+  { text: "Zufriedenheit ist natürlicher Reichtum.", author: "Sokrates zugeschrieben" },
+  { text: "Wir sind, was wir wiederholt tun.", author: "Aristoteles zugeschrieben" },
+  { text: "Das Ganze ist mehr als die Summe seiner Teile.", author: "Aristoteles zugeschrieben" },
+  { text: "Der beste Weg, die Zukunft vorauszusagen, ist, sie zu gestalten.", author: "Peter Drucker zugeschrieben" },
+  { text: "Wer nie einen Fehler gemacht hat, hat nie etwas Neues ausprobiert.", author: "Albert Einstein zugeschrieben" },
+  { text: "Mache die Dinge so einfach wie möglich – aber nicht einfacher.", author: "Albert Einstein zugeschrieben" },
+  { text: "Die Tat unterscheidet das Ziel vom Traum.", author: "Sprichwort" },
+  { text: "Jeder Tag ist ein neuer Anfang.", author: "Sprichwort" },
+  { text: "Wer neue Wege gehen will, muss alte Pfade verlassen.", author: "Sprichwort" },
+  { text: "Gute Entscheidungen entstehen aus Erfahrung; Erfahrung oft aus schlechten Entscheidungen.", author: "Sprichwort" },
+  { text: "Wer langsam geht, kommt auch ans Ziel.", author: "Sprichwort" },
+  { text: "Auch der längste Weg beginnt mit dem ersten Schritt.", author: "Sprichwort" },
+  { text: "Der eine wartet, dass die Zeit sich wandelt, der andere packt sie an.", author: "Dante Alighieri zugeschrieben" },
+  { text: "Die Grenzen des Möglichen lassen sich nur bestimmen, indem man sich über sie hinauswagt.", author: "Arthur C. Clarke" },
+  { text: "Nur wer sich ändert, bleibt sich treu.", author: "Wolf Biermann" },
+  { text: "Wer Freude an der Arbeit hat, ist imstande, viel zu leisten.", author: "Marion Gräfin Dönhoff" },
+  { text: "Der Charakter offenbart sich an den großen Wendepunkten des Lebens.", author: "Johann Wolfgang von Goethe zugeschrieben" },
+  { text: "Es ist besser, ein kleines Licht anzuzünden, als über die Dunkelheit zu klagen.", author: "Sprichwort" }
+];
+
+function dayOfYear(date) {
+  var start = new Date(date.getFullYear(), 0, 0);
+  return Math.floor((date - start) / 86400000);
+}
+
+function updateDailyQuote() {
+  var now = new Date();
+  var index = (now.getFullYear() * 367 + dayOfYear(now)) % DAILY_QUOTES.length;
+  var quote = DAILY_QUOTES[index];
+
+  document.getElementById("quoteText").innerHTML =
+    "„" + escapeHtml(quote.text) + "“";
+  document.getElementById("quoteAuthor").innerHTML =
+    "— " + escapeHtml(quote.author);
+}
+
+
 var MARKET_IDS = {
   dax: { value: "market-dax-value", change: "market-dax-change" },
   btc: { value: "market-btc-value", change: "market-btc-change" },
@@ -762,11 +885,13 @@ buildCards();
 updateClock();
 loadNews();
 loadMarketData();
+updateDailyQuote();
 setInterval(updateClock, 1000);
 loadWeather();
 setInterval(loadWeather, 15 * 60 * 1000);
 setInterval(loadNews, 10 * 60 * 1000);
 setInterval(loadMarketData, 5 * 60 * 1000);
+setInterval(updateDailyQuote, 60 * 60 * 1000);
 
 
 </script>
