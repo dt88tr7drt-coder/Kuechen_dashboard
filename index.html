@@ -7,7 +7,7 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="format-detection" content="telephone=no">
   <title>Küchen-Dashboard</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" integrity="sha512-xodZBNTC5n17Xt2jsXG2TcjmHXRd4l5Z4HhMtk6CB1tZz2qRggn74c6Q3wI9BqGm4wJgI83M0RyI7v9C1N6zQ==" crossorigin="">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css">
   <style>
     * { box-sizing: border-box; }
     html, body {
@@ -335,7 +335,7 @@
       <div id="date" class="date">Datum wird geladen</div>
     </div>
     <div class="header-right">
-      Küchen-Dashboard<br>
+      Küchen-Dashboard · v6<br>
       <span id="lastUpdate">Wetter wird geladen …</span>
     </div>
   </div>
@@ -432,19 +432,19 @@ var radarHost = "";
 
 function initRadar() {
   if (typeof L === "undefined") {
-    document.getElementById("radarTime").innerHTML = "Karte konnte nicht geladen werden";
+    document.getElementById("radarTime").innerHTML = "Kartensoftware konnte nicht geladen werden";
     return;
   }
 
-  // Stegaurach: center slightly wider to show Bamberg and surroundings.
   radarMap = L.map("radarMap", {
     center: [49.86333, 10.84361],
-    zoom: 9,
+    zoom: 7,
     zoomControl: false,
     attributionControl: false
   });
 
   L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+    minZoom: 3,
     maxZoom: 18
   }).addTo(radarMap);
 
@@ -455,6 +455,14 @@ function initRadar() {
     fillColor: "#111111",
     fillOpacity: 1
   }).addTo(radarMap).bindTooltip("Stegaurach");
+
+  // Old Safari sometimes calculates a wrong map size on first render.
+  setTimeout(function() {
+    if (radarMap) {
+      radarMap.invalidateSize(true);
+      radarMap.setView([49.86333, 10.84361], 7);
+    }
+  }, 500);
 
   loadRadarFrames();
 }
@@ -478,9 +486,9 @@ function showRadarFrame(pos) {
 
   radarLayer = L.tileLayer(tileUrl, {
     tileSize: 256,
-    opacity: 0.68,
+    opacity: 0.72,
     maxNativeZoom: 7,
-    maxZoom: 18
+    maxZoom: 7
   }).addTo(radarMap);
 
   document.getElementById("radarTime").innerHTML = formatRadarTime(frame.time);
@@ -504,8 +512,8 @@ function loadRadarFrames() {
       radarFrames = data.radar && data.radar.past ? data.radar.past : [];
 
       // Keep only the latest 8 frames for smoother performance on the old iPad.
-      if (radarFrames.length > 8) {
-        radarFrames = radarFrames.slice(radarFrames.length - 8);
+      if (radarFrames.length > 6) {
+        radarFrames = radarFrames.slice(radarFrames.length - 6);
       }
 
       if (radarFrames.length === 0) throw new Error("Keine Radardaten");
@@ -521,25 +529,30 @@ function loadRadarFrames() {
 
 
 
+
 var NEWS_CONFIG = {
   local: {
-    // Bamberg/inFranken feed mirrored by RSS Amplifier
-    feed: "https://rssamplifier.com/infranken-de-3.rss",
+    feeds: [
+      "https://www.infranken.de/storage/rss/rss/2.0/lokales.xml",
+      "https://www.infranken.de/storage/rss/rss/2.0/bamberg.xml"
+    ],
     target: "localNews",
-    maxItems: 4,
-    source: "inFranken · Bamberg"
+    maxItems: 5,
+    source: "inFranken"
   },
   spiegel: {
-    feed: "https://www.spiegel.de/schlagzeilen/index.rss",
+    feeds: [
+      "https://www.spiegel.de/schlagzeilen/index.rss"
+    ],
     target: "spiegelNews",
-    maxItems: 4,
+    maxItems: 5,
     source: "DER SPIEGEL"
   }
 };
 
 function escapeHtml(str) {
   if (!str) return "";
-  return str
+  return String(str)
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
@@ -549,76 +562,103 @@ function escapeHtml(str) {
 
 function formatNewsDate(value) {
   if (!value) return "";
-  var d = new Date(value);
+  // rss2json usually returns "YYYY-MM-DD HH:MM:SS"
+  var normalized = value;
+  if (/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/.test(value)) {
+    normalized = value.replace(" ", "T");
+  }
+  var d = new Date(normalized);
   if (isNaN(d.getTime())) return "";
   return pad(d.getHours()) + ":" + pad(d.getMinutes());
 }
 
-function parseFeedXml(xmlText, cfg) {
-  var parser = new DOMParser();
-  var xml = parser.parseFromString(xmlText, "text/xml");
-  var items = xml.getElementsByTagName("item");
-  var out = [];
-
-  for (var i = 0; i < items.length && out.length < cfg.maxItems; i++) {
-    var item = items[i];
-    var titleNode = item.getElementsByTagName("title")[0];
-    var linkNode = item.getElementsByTagName("link")[0];
-    var dateNode = item.getElementsByTagName("pubDate")[0];
-
-    var title = titleNode ? titleNode.textContent : "";
-    var link = linkNode ? linkNode.textContent : "#";
-    var date = dateNode ? dateNode.textContent : "";
-
-    if (title) {
-      out.push({
-        title: title,
-        link: link,
-        date: date
-      });
-    }
-  }
-  return out;
-}
-
 function renderNews(items, cfg) {
   var target = document.getElementById(cfg.target);
+
   if (!items || items.length === 0) {
     target.innerHTML = '<div class="placeholder">Keine Nachrichten verfügbar.</div>';
     return;
   }
 
-  var html = "";
-  for (var i = 0; i < items.length; i++) {
-    html +=
+  items.sort(function(a, b) {
+    var da = new Date((a.pubDate || "").replace(" ", "T")).getTime() || 0;
+    var db = new Date((b.pubDate || "").replace(" ", "T")).getTime() || 0;
+    return db - da;
+  });
+
+  var seen = {};
+  var shown = 0;
+  var out = "";
+
+  for (var i = 0; i < items.length && shown < cfg.maxItems; i++) {
+    var item = items[i];
+    var key = item.link || item.title;
+    if (!key || seen[key]) continue;
+    seen[key] = true;
+
+    out +=
       '<div class="news-item">' +
-        '<a href="' + escapeHtml(items[i].link) + '" target="_blank">' +
-          escapeHtml(items[i].title) +
+        '<a href="' + escapeHtml(item.link || "#") + '" target="_blank">' +
+          escapeHtml(item.title || "Nachricht") +
         '</a>' +
         '<span class="news-meta">' +
           cfg.source +
-          (formatNewsDate(items[i].date) ? ' · ' + formatNewsDate(items[i].date) : '') +
+          (formatNewsDate(item.pubDate) ? ' · ' + formatNewsDate(item.pubDate) : '') +
         '</span>' +
       '</div>';
+
+    shown++;
   }
-  target.innerHTML = html;
+
+  target.innerHTML = out || '<div class="placeholder">Keine Nachrichten verfügbar.</div>';
 }
 
-function fetchFeedThroughProxy(feedUrl) {
-  var proxy = "https://api.allorigins.win/raw?url=" + encodeURIComponent(feedUrl);
-  return fetch(proxy).then(function(response) {
-    if (!response.ok) throw new Error("HTTP " + response.status);
-    return response.text();
-  });
+function fetchRss2Json(feedUrl) {
+  var api =
+    "https://api.rss2json.com/v1/api.json?rss_url=" +
+    encodeURIComponent(feedUrl);
+
+  return fetch(api)
+    .then(function(response) {
+      if (!response.ok) throw new Error("HTTP " + response.status);
+      return response.json();
+    })
+    .then(function(data) {
+      if (!data || data.status !== "ok") {
+        throw new Error(data && data.message ? data.message : "Feed-Fehler");
+      }
+      return data.items || [];
+    });
 }
 
 function loadNewsFeed(cfg) {
-  fetchFeedThroughProxy(cfg.feed)
-    .then(function(text) {
-      renderNews(parseFeedXml(text, cfg), cfg);
+  var target = document.getElementById(cfg.target);
+  target.innerHTML = '<div class="placeholder">Nachrichten werden geladen …</div>';
+
+  var jobs = [];
+  for (var i = 0; i < cfg.feeds.length; i++) {
+    jobs.push(
+      fetchRss2Json(cfg.feeds[i]).catch(function() {
+        return [];
+      })
+    );
+  }
+
+  Promise.all(jobs)
+    .then(function(results) {
+      var merged = [];
+      for (var r = 0; r < results.length; r++) {
+        merged = merged.concat(results[r]);
+      }
+
+      if (merged.length === 0) {
+        throw new Error("Keine Feed-Daten");
+      }
+
+      renderNews(merged, cfg);
     })
     .catch(function() {
-      document.getElementById(cfg.target).innerHTML =
+      target.innerHTML =
         '<div class="placeholder">Nachrichten aktuell nicht verfügbar.</div>';
     });
 }
@@ -627,7 +667,6 @@ function loadNews() {
   loadNewsFeed(NEWS_CONFIG.local);
   loadNewsFeed(NEWS_CONFIG.spiegel);
 }
-
 
 function buildCards() {
   var html = "";
@@ -689,6 +728,15 @@ loadWeather();
 setInterval(loadWeather, 15 * 60 * 1000);
 setInterval(loadRadarFrames, 10 * 60 * 1000);
 setInterval(loadNews, 10 * 60 * 1000);
+
+window.addEventListener("resize", function() {
+  if (radarMap) {
+    setTimeout(function() {
+      radarMap.invalidateSize(true);
+    }, 250);
+  }
+});
+
 </script>
 </body>
 </html>
