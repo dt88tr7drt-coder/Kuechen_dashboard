@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-24T21:44:44.746434+00:00",
+  "updated_at": "2026-10-24T22:07:16.348121+00:00",
   "items": [
     {
       "id": "dax",
@@ -15,9 +15,9 @@
       "id": "btc",
       "name": "Bitcoin",
       "symbol": "BTC-EUR",
-      "price": 71725.71,
-      "display": "71.726 €",
-      "change_pct": -2.9185,
+      "price": 71812.65,
+      "display": "71.813 €",
+      "change_pct": -2.8008,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
