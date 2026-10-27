@@ -1,13 +1,7 @@
 {
-  "updated_at": "2026-10-27T09:38:02.908301+00:00",
+  "updated_at": "2026-10-27T10:36:47.065819+00:00",
   "source_page": "https://www.infranken.de/lk/bamberg/",
   "items": [
-    {
-      "title": "Alt-OB: Gibt es in Bamberg bald einen Paul-Röhner-Platz?",
-      "link": "https://www.fraenkischertag.de/lokales/bamberg/politik/bamberg-wird-einstiger-ob-mit-paul-roehner-platz-posthum-art-593615?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
-      "source": "Fränkischer Tag",
-      "time": ""
-    },
     {
       "title": "Hilferuf der TSG Bamberg: Platznot gefährdet Sportangebote",
       "link": "https://www.fraenkischertag.de/lokales/bamberg/kultur-freizeit/verein-tsg-bamberg-warnt-platznot-gefaehrdet-sportangebote-art-593241?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
@@ -21,6 +15,12 @@
       "time": ""
     },
     {
+      "title": "Tischler und Ensminger: So viel Bamberg steckt in Oldenburg",
+      "link": "https://www.fraenkischertag.de/sport/bamberg-baskets/so-viel-bamberg-steckt-in-oldenburgs-offensive-art-595985?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
+      "source": "Fränkischer Tag",
+      "time": ""
+    },
+    {
       "title": "Großeinsatz im Landkreis Bamberg: Schwerverletzter bei Brand in Seniorenheim",
       "link": "https://www.infranken.de/lk/bamberg/blaulicht/brand-in-seniorenheim-in-heiligenstadt-bewohner-schwer-verletzt-grosseinsatz-feuerwehr-art-6406475",
       "source": "inFranken · Bamberg",
@@ -28,7 +28,7 @@
     },
     {
       "title": "Beliebte TV-Sendung startet in neue Staffel – Sophia aus Kreis Bamberg macht den Auftakt",
-      "link": "https://www.infranken.de/lk/bamberg/tv-serie-landfrauenkueche-startet-in-neue-staffel-oberfraenkin-macht-auftakt-art-6406309",
+      "link": "https://www.infranken.de/lk/bamberg/neue-staffel-landfrauenkueche-tv-serie-bayerischer-rundfunk-landwirtschaft-kochsendung-art-6406309",
       "source": "inFranken · Bamberg",
       "time": ""
     }
