@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-10-30T17:09:52.291317+00:00",
+  "updated_at": "2026-10-30T17:48:29.906833+00:00",
   "items": [
     {
       "id": "dax",
@@ -15,9 +15,9 @@
       "id": "btc",
       "name": "Bitcoin",
       "symbol": "BTC-EUR",
-      "price": 69116.95,
-      "display": "69.117 €",
-      "change_pct": -3.4714,
+      "price": 69176.23,
+      "display": "69.176 €",
+      "change_pct": -3.3886,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -25,9 +25,9 @@
       "id": "schaeffler",
       "name": "Schaeffler",
       "symbol": "SHA0.DE",
-      "price": 5.8,
-      "display": "5,80 €",
-      "change_pct": 7.6067,
+      "price": 5.81,
+      "display": "5,81 €",
+      "change_pct": 7.7922,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -35,9 +35,9 @@
       "id": "gold",
       "name": "Gold",
       "symbol": "GC=F / EURUSD=X",
-      "price": 3499.283026,
-      "display": "3.499,28 €/oz",
-      "change_pct": -2.7958,
+      "price": 3492.513225,
+      "display": "3.492,51 €/oz",
+      "change_pct": -2.9838,
       "currency": "EUR",
       "source": "Yahoo Finance"
     }
