@@ -1,13 +1,7 @@
 {
-  "updated_at": "2026-11-04T16:26:29.715590+00:00",
+  "updated_at": "2026-11-04T17:25:26.363416+00:00",
   "source_page": "https://www.infranken.de/lk/bamberg/",
   "items": [
-    {
-      "title": "Asiatischer Genuss: Neues Restaurant bei Bamberg eröffnet",
-      "link": "https://www.fraenkischertag.de/lokales/bamberg/wirtschaft/hanyu-restaurant-bietet-modern-asian-kitchen-nahe-bamberg-art-599559?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
-      "source": "Fränkischer Tag",
-      "time": ""
-    },
     {
       "title": "Alte Bräuche: Wie Bamberg Allerheiligen feiert",
       "link": "https://www.fraenkischertag.de/lokales/bamberg/kultur-freizeit/allerheiligen-braeuche-seelenspitzen-landkreis-art-598455?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
@@ -21,14 +15,20 @@
       "time": ""
     },
     {
+      "title": "Job-Kahlschlag bei Schaeffler: So ist die Lage in Hirschaid",
+      "link": "https://www.fraenkischertag.de/lokales/bamberg/wirtschaft/schaeffler-stellenabbau-warum-hirschaid-vorerst-verschont-bleibt-art-599471?utm_source=infranken&utm_medium=teaser&utm_campaign=bamberg",
+      "source": "Fränkischer Tag",
+      "time": ""
+    },
+    {
       "title": "\"Etwas Besonderes\": Diese Bamberger Bar zählt zu den besten in ganz Europa",
       "link": "https://www.infranken.de/lk/bamberg/gastronomie/bamberger-bar-zaehlt-zu-den-besten-europas-etwas-besonderes-art-6408678",
       "source": "inFranken · Bamberg",
       "time": ""
     },
     {
-      "title": "Stadtbücherei Bamberg zum zehnten Mal mit Gütesiegel ausgezeichnet",
-      "link": "https://www.infranken.de/lk/bamberg/stadtbuecherei-bamberg-zum-zehnten-mal-mit-guetesiegel-ausgezeichnet-art-6408752",
+      "title": "Nachtbaustelle in Bamberg: Marienbrücke Mitte November halbseitig gesperrt",
+      "link": "https://www.infranken.de/lk/bamberg/nachtbaustelle-in-bamberg-marienbruecke-mitte-november-halbseitig-gesperrt-art-6408762",
       "source": "inFranken · Bamberg",
       "time": ""
     }
