@@ -1,5 +1,5 @@
 {
-  "updated_at": "2026-11-09T03:32:31.697890+00:00",
+  "updated_at": "2026-11-09T04:43:10.644204+00:00",
   "items": [
     {
       "id": "dax",
@@ -15,9 +15,9 @@
       "id": "btc",
       "name": "Bitcoin",
       "symbol": "BTC-EUR",
-      "price": 67257.8,
-      "display": "67.258 €",
-      "change_pct": -0.5607,
+      "price": 67034.66,
+      "display": "67.035 €",
+      "change_pct": -0.8906,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -35,9 +35,9 @@
       "id": "gold",
       "name": "Gold",
       "symbol": "GC=F / EURUSD=X",
-      "price": 3701.32664,
-      "display": "3.701,33 €/oz",
-      "change_pct": 5.1295,
+      "price": 3708.923132,
+      "display": "3.708,92 €/oz",
+      "change_pct": 5.3453,
       "currency": "EUR",
       "source": "Yahoo Finance"
     }
