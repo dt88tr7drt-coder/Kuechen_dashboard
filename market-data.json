@@ -1,13 +1,13 @@
 {
-  "updated_at": "2026-11-27T15:01:25.195253+00:00",
+  "updated_at": "2026-11-27T23:25:54.144651+00:00",
   "items": [
     {
       "id": "dax",
       "name": "DAX",
       "symbol": "^GDAXI",
-      "price": 25310.01,
-      "display": "25.310,01",
-      "change_pct": 2.0451,
+      "price": 25441.24,
+      "display": "25.441,24",
+      "change_pct": 2.5741,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -15,9 +15,9 @@
       "id": "btc",
       "name": "Bitcoin",
       "symbol": "BTC-EUR",
-      "price": 53782.73,
-      "display": "53.783 €",
-      "change_pct": -4.1598,
+      "price": 54622.46,
+      "display": "54.622 €",
+      "change_pct": -2.6634,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -25,9 +25,9 @@
       "id": "schaeffler",
       "name": "Schaeffler",
       "symbol": "SHA0.DE",
-      "price": 5.18,
-      "display": "5,18 €",
-      "change_pct": 7.2464,
+      "price": 5.21,
+      "display": "5,21 €",
+      "change_pct": 7.8675,
       "currency": "EUR",
       "source": "Yahoo Finance"
     },
@@ -35,9 +35,9 @@
       "id": "gold",
       "name": "Gold",
       "symbol": "GC=F / EURUSD=X",
-      "price": 3351.264956,
-      "display": "3.351,26 €/oz",
-      "change_pct": 0.7013,
+      "price": 3353.597221,
+      "display": "3.353,60 €/oz",
+      "change_pct": 0.7714,
       "currency": "EUR",
       "source": "Yahoo Finance"
     }
